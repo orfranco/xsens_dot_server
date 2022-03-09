@@ -1,3 +1,6 @@
+## Franco's Edit:
+This is the Xsens module Repository. This repository was copies from the original company repository, and includes the changes needed for AbeltonXsens Project.
+
 ## Overview
 Xsens DOT Server is a simple web server that can scan, connect and start measurement with Xsens DOT on Windows, macOS and Raspberry Pi. The system is built using Node.js in combination with [Noble](https://github.com/abandonware/noble). 
 
