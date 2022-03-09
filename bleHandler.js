@@ -74,8 +74,23 @@ class BleHandler
         this.discoveredSensorCounter = 0;
         this.central = require('noble-mac');
         this.setBleEventHandlers(this);
-
         this.isSyncingEnabled = true;
+
+        // const app = require("express")();
+        // const http = require('http').Server(app);
+        // this.io = require('socket.io')(http);
+        //
+        // this.io.on('connection', function (socket) {
+        //     console.log("User connected:"+ socket.id);
+        // });
+        //
+        // http.listen(3001, function () {
+        //     console.log("Server running...");
+        //
+        // });
+        //
+        // this.io.emit("send-message", "10");
+
 
         console.log( "BLE Handler started." );
     }
@@ -503,7 +518,7 @@ class BleHandler
 // ---------------------------------------------------------------------------------------
 // -- Convert sensor data --
 // ---------------------------------------------------------------------------------------
-function convertSensorData( sensor, data, measuringPayloadId, isSyncingEnabled )
+function convertSensorData(sensor, data, measuringPayloadId, isSyncingEnabled )
 {
     if (isSyncingEnabled)
     {
@@ -534,11 +549,10 @@ function convertSensorData( sensor, data, measuringPayloadId, isSyncingEnabled )
                 freeAcc_y: freeAcceleration.y,
                 freeAcc_z: freeAcceleration.z
             };
-
-            // console.log("Payload id 16 bleSensorData " + result.timestamp + ", " + result.address 
-            //     + ", euler_x " + result.euler_x + ", euler_y " + result.euler_y + ", euler_z " + result.euler_z
-            //     + ", freeAcc_x " + result.freeAcc_x + ", freeAcc_y " + result.freeAcc_y + ", freeAcc_z " + result.freeAcc_z);
-
+            //TODO: REMOVE?
+            console.log("Payload id 16 bleSensorData " + result.timestamp + ", " + result.address
+                + ", euler_x " + result.euler_x + ", euler_y " + result.euler_y + ", euler_z " + result.euler_z
+                + ", freeAcc_x " + result.freeAcc_x + ", freeAcc_y " + result.freeAcc_y + ", freeAcc_z " + result.freeAcc_z);
             return result;
             
         case MEASURING_PAYLOAD_TYPE_EXTENDED_QUATERNION:
@@ -563,11 +577,11 @@ function convertSensorData( sensor, data, measuringPayloadId, isSyncingEnabled )
                 clipCountAcc: clipCountAcc,
                 clipCountGyr: clipCountGyr
             };
-
-            // console.log("Payload id 2 bleSensorData " + result.timestamp + ", " + result.address 
-            //     + ", quaternion_w " + result.quaternion_w + ", quaternion_x " + result.quaternion_x + ", quaternion_y " + result.quaternion_y + ", quaternion_z " + result.quaternion_z
-            //     + ", freeAcc_x " + result.freeAcc_x + ", freeAcc_y " + result.freeAcc_y + ", freeAcc_z " + result.freeAcc_z
-            //     + ", status " + result.status + ", clipCountAcc " + result.clipCountAcc + ", clipCountGyr " + result.clipCountGyr);
+            //TODO: REMOVE?
+            console.log("Payload id 2 bleSensorData " + result.timestamp + ", " + result.address
+                + ", quaternion_w " + result.quaternion_w + ", quaternion_x " + result.quaternion_x + ", quaternion_y " + result.quaternion_y + ", quaternion_z " + result.quaternion_z
+                + ", freeAcc_x " + result.freeAcc_x + ", freeAcc_y " + result.freeAcc_y + ", freeAcc_z " + result.freeAcc_z
+                + ", status " + result.status + ", clipCountAcc " + result.clipCountAcc + ", clipCountGyr " + result.clipCountGyr);
 
             return result;
 
@@ -590,11 +604,11 @@ function convertSensorData( sensor, data, measuringPayloadId, isSyncingEnabled )
                 mag_y:        mag.y,
                 mag_z:        mag.z
             };
-
-            // console.log("Payload id 20 bleSensorData " + result.timestamp + ", " + result.address 
-            //     + ", acc_x " + result.acc_x + ", acc_y " + result.acc_y + ", acc_z " + result.acc_z
-            //     + ", gyr_x " + result.gyr_x + ", gyr_y " + result.gyr_y + ", gyr_z " + result.gyr_z
-            //     + ", mag_x " + result.mag_x + ", mag_y " + result.mag_y + ", mag_z " + result.mag_z);
+            //TODO: REMOVE?
+            console.log("Payload id 20 bleSensorData " + result.timestamp + ", " + result.address
+                + ", acc_x " + result.acc_x + ", acc_y " + result.acc_y + ", acc_z " + result.acc_z
+                + ", gyr_x " + result.gyr_x + ", gyr_y " + result.gyr_y + ", gyr_z " + result.gyr_z
+                + ", mag_x " + result.mag_x + ", mag_y " + result.mag_y + ", mag_z " + result.mag_z);
 
             return result;
 
