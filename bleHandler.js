@@ -617,8 +617,15 @@ function convertSensorData(sensor, data, measuringPayloadId, isSyncingEnabled, a
                     clipCountAcc: clipCountAcc,
                     clipCountGyr: clipCountGyr
                 };
-            console.log("freeAcc_X: " + freeAcceleration.x);
-            // console.log("freeAcc_Y" + freeAcceleration.y);
+            msg = "Payload id 20 bleSensorData " + result.timestamp + "," + result.address
+                + "\neuler_x:" + result.euler_x + "\neuler_y:" + result.euler_y + "\neuler_z:" + result.euler_z
+                + "\nacc_x:" + result.freeAcc_x + "\nacc_y:" + result.freeAcc_y + "\nacc_z:" + result.freeAcc_z
+                + "\ngyr_x:" + result.gyr_x + "\ngyr_y:" + result.gyr_y + "\ngyr_z:" + result.gyr_z
+                + "\nmag_x:" + result.mag_x + "\nmag_y:" + result.mag_y + "\nmag_z:" + result.mag_z
+                + "\nquaternion_w:" + result.quaternion_w + "\nquaternion_x:" + result.quaternion_x
+                + "\nquaternion_y:" + result.quaternion_y + "\nquaternion_z:" + result.quaternion_z
+            analyzerSocket.sendData(msg);
+            console.log(msg);
             return result;
 
         case MEASURING_PAYLOAD_TYPE_CUSTOM_MODE_2:
