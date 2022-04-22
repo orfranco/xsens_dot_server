@@ -80,11 +80,12 @@ var transitions =
 
             if (globalConnectedSensors != null && globalConnectedSensors != undefined)
             {
-                globalConnectedSensors.forEach( function (sensor)
+
+				globalConnectedSensors.forEach( function (sensor)
                 {
                     if( component.sensors[sensor.address] == undefined )
                     {
-                        component.sensors[sensor.address] = sensor;
+						component.sensors[sensor.address] = sensor;
                     }
                     component.discoveredSensors.push( sensor );
                 });

@@ -38,8 +38,8 @@
 // Packages
 // =======================================================================================
 var Quaternion = require('quaternion');
-const io = require("socket.io-client");
-
+const SensorServer = require("./sensorServer");
+const AnalyzerSocketServer = require("./AnalyzerSocketServer");
 // =======================================================================================
 // Constants
 // =======================================================================================
@@ -59,28 +59,40 @@ const SENSOR_NAME = "Xsens DOT",
     BLE_UUID_RECORDING_ACK = "15177002494711e98646d663bd873d93",
     ROLLOVER = 4294967295,
     CLOCK_DELTA = 0.0002,
-    TWO_POW_TWELVE = Math.pow(2, 12);
+    TWO_POW_TWELVE = Math.pow(2, 12),
+    PORT_NUM = 3001,
+    SOCKET_SERVER_URL = "http://localhost:" + PORT_NUM,
+    ANALYZER_DEBUG = true;
+
 
 // =======================================================================================
 // Class definition
 // =======================================================================================
 
+
 class BleHandler {
+    // -----------------------------------------------------------------------------------
+    // -- Socket-io implementation, initializes a Server and Client in
+    //    SOCKET_SERVER_URL:PORT_NUM
+    //    --
+    // -----------------------------------------------------------------------------------
+    AnalyzerSocketInit() {
+        const AnalyzerSocketServer = require('./AnalyzerSocketServer');
+        new AnalyzerSocketServer(PORT_NUM);
+        const AnalyzerSocketClient = require('./AnalyzerSocketClient');
+        this.analyzerSocket = new AnalyzerSocketClient(SOCKET_SERVER_URL);
+    }
+
     constructor(bleEventsInterface, syncingEventsInterface, guiInterface) {
         this.bleEvents = bleEventsInterface;
         this.syncingEvents = syncingEventsInterface;
         this.guiInterface = guiInterface;
         this.discoveredSensorCounter = 0;
+        //old-library:
         this.central = require('noble-mac');
         this.setBleEventHandlers(this);
         this.isSyncingEnabled = true;
-        const io = require("socket.io-client")
-        this.socket = io('http://localhost:3001')
-        this.socket.on("connect", () => {
-            console.log("connected to server!")
-        })
-
-
+        this.AnalyzerSocketInit();
         console.log("BLE Handler started.");
     }
 
@@ -107,9 +119,9 @@ class BleHandler {
 
         central.on('discover', function (peripheral) {
             var localName = peripheral.advertisement.localName;
-
-            if (localName && localName == SENSOR_NAME) {
-                if (peripheral.address == undefined || peripheral.address == "") {
+            // console.log("discovered");
+            if (localName && localName === SENSOR_NAME) {
+                if (peripheral.address === undefined || peripheral.address === "") {
                     peripheral.address = (bleHandler.discoveredSensorCounter++).toString(16);
                 }
 
@@ -143,7 +155,6 @@ class BleHandler {
     // -----------------------------------------------------------------------------------
     connectSensor(sensor) {
         var bleHandler = this;
-
         sensor.removeAllListeners();
         sensor.connect(function (error) {
             if (error) {
@@ -153,7 +164,10 @@ class BleHandler {
             sensor.discoverAllServicesAndCharacteristics(function (error, services, characteristics) {
                 if (error) {
                     bleHandler.disconnectSensor(sensor);
-                    bleHandler.sendBleEvent('bleSensorError', {sensor: sensor, error: error});
+                    bleHandler.sendBleEvent('bleSensorError', {
+                        sensor: sensor,
+                        error: error
+                    });
                     return;
                 }
                 sensor.characteristics = {};
@@ -166,9 +180,15 @@ class BleHandler {
 
                     if (isInSyncingProgress) {
                         console.log('disconnect sensor ' + sensor.address);
-                        bleHandler.sendSyncingEvent('bleSensorDisconnected', {sensor: sensor, addresses: addresses});
+                        bleHandler.sendSyncingEvent('bleSensorDisconnected', {
+                            sensor: sensor,
+                            addresses: addresses
+                        });
                     } else {
-                        bleHandler.sendBleEvent('bleSensorDisconnected', {sensor: sensor, addresses: addresses});
+                        bleHandler.sendBleEvent('bleSensorDisconnected', {
+                            sensor: sensor,
+                            addresses: addresses
+                        });
                     }
 
                     var idx = globalConnectedSensors.indexOf(sensor);
@@ -181,10 +201,16 @@ class BleHandler {
 
                 var addresses = [sensor.address];
                 if (isInSyncingProgress) {
-                    bleHandler.sendSyncingEvent('bleSensorConnected', {sensor: sensor, addresses: addresses});
+                    bleHandler.sendSyncingEvent('bleSensorConnected', {
+                        sensor: sensor,
+                        addresses: addresses
+                    });
                 }
 
-                bleHandler.sendBleEvent('bleSensorConnected', {sensor: sensor, addresses: addresses});
+                bleHandler.sendBleEvent('bleSensorConnected', {
+                    sensor: sensor,
+                    addresses: addresses
+                });
 
                 globalConnectedSensors.push(sensor);
                 console.log('Add global connected sensor ' + sensor.address);
@@ -239,7 +265,7 @@ class BleHandler {
                 bleHandler.sendBleEvent
                 (
                     "bleSensorData",
-                    convertSensorData(sensor, data, measuringPayloadId, bleHandler.isSyncingEnabled, bleHandler.socket)
+                    convertSensorData(sensor, data, measuringPayloadId, bleHandler.isSyncingEnabled, bleHandler.analyzerSocket)
                 );
             });
         }
@@ -252,13 +278,19 @@ class BleHandler {
 
             measurementCharacteristic.subscribe(function (error) {
                 if (error) {
-                    bleHandler.sendBleEvent('bleSensorError', {sensor: sensor, error: error});
+                    bleHandler.sendBleEvent('bleSensorError', {
+                        sensor: sensor,
+                        error: error
+                    });
                     return;
                 }
 
                 var addresses = [sensor.address];
 
-                bleHandler.sendBleEvent('bleSensorEnabled', {sensor: sensor, addresses: addresses});
+                bleHandler.sendBleEvent('bleSensorEnabled', {
+                    sensor: sensor,
+                    addresses: addresses
+                });
             });
         });
     }
@@ -283,7 +315,10 @@ class BleHandler {
 
             var addresses = [sensor.address];
 
-            bleHandler.sendBleEvent('bleSensorDisabled', {sensor: sensor, addresses: addresses});
+            bleHandler.sendBleEvent('bleSensorDisabled', {
+                sensor: sensor,
+                addresses: addresses
+            });
         });
     }
 
@@ -318,7 +353,10 @@ class BleHandler {
             if (status == HEADING_STATUS_XRM_NONE
                 || status == HEADING_STATUS_XRM_DEFAULT_ALIGNMENT
                 || status == HEADING_STATUS_XRM_HEADING) {
-                bleHandler.guiInterface.sendGuiEvent('readHeadingStatus', {address: sensor.address, status: status});
+                bleHandler.guiInterface.sendGuiEvent('readHeadingStatus', {
+                    address: sensor.address,
+                    status: status
+                });
             }
         });
     }
@@ -407,7 +445,10 @@ class BleHandler {
                 && data[0] == BLE_MID_SYNCING
                 && data[2] == SYNCING_ID_SYNCING_RESULT) {
                 var isSuccess = (data[3] == 0x00);
-                bleHandler.sendSyncingEvent('bleSensorSyncingDone', {sensor: sensor, isSuccess: isSuccess});
+                bleHandler.sendSyncingEvent('bleSensorSyncingDone', {
+                    sensor: sensor,
+                    isSuccess: isSuccess
+                });
             }
         });
     }
@@ -445,7 +486,7 @@ class BleHandler {
 // ---------------------------------------------------------------------------------------
 // -- Convert sensor data --
 // ---------------------------------------------------------------------------------------
-function convertSensorData(sensor, data, measuringPayloadId, isSyncingEnabled, socket) {
+function convertSensorData(sensor, data, measuringPayloadId, isSyncingEnabled, analyzerSocket) {
     if (isSyncingEnabled) {
         sensor.systemTimestamp = getSensorTimestamp(data);
     } else {
@@ -474,8 +515,8 @@ function convertSensorData(sensor, data, measuringPayloadId, isSyncingEnabled, s
             msg = "Payload id 16 bleSensorData " + result.timestamp + ", " + result.address
                 + ", euler_x " + result.euler_x + ", euler_y " + result.euler_y + ", euler_z " + result.euler_z
                 + ", freeAcc_x " + result.freeAcc_x + ", freeAcc_y " + result.freeAcc_y + ", freeAcc_z " + result.freeAcc_z;
-            console.log(msg);
-            socket.emit("send-message", msg);
+            analyzerSocket.sendData(msg);
+            ANALYZER_DEBUG ? console.log(msg) : null;
             return result;
 
         case MEASURING_PAYLOAD_TYPE_EXTENDED_QUATERNION:
@@ -500,13 +541,15 @@ function convertSensorData(sensor, data, measuringPayloadId, isSyncingEnabled, s
                     clipCountAcc: clipCountAcc,
                     clipCountGyr: clipCountGyr
                 };
-
             msg = "Payload id 2 bleSensorData " + result.timestamp + ", " + result.address
-                + ", quaternion_w " + result.quaternion_w + ", quaternion_x " + result.quaternion_x + ", quaternion_y " + result.quaternion_y + ", quaternion_z " + result.quaternion_z
-                + ", freeAcc_x " + result.freeAcc_x + ", freeAcc_y " + result.freeAcc_y + ", freeAcc_z " + result.freeAcc_z
-                + ", status " + result.status + ", clipCountAcc " + result.clipCountAcc + ", clipCountGyr " + result.clipCountGyr;
-            console.log(msg);
-            socket.emit("send-message", msg);
+                + ", quaternion_w " + result.quaternion_w + ", quaternion_x "
+                + result.quaternion_x + ", quaternion_y " + result.quaternion_y
+                + ", quaternion_z " + result.quaternion_z + ", freeAcc_x "
+                + result.freeAcc_x + ", freeAcc_y " + result.freeAcc_y + ", freeAcc_z "
+                + result.freeAcc_z + ", status " + result.status + ", clipCountAcc "
+                + result.clipCountAcc + ", clipCountGyr " + result.clipCountGyr;
+            analyzerSocket.sendData(msg);
+            ANALYZER_DEBUG ? console.log(msg) : null;
             return result;
 
         case MEASURING_PAYLOAD_TYPE_RATE_QUANTITIES_WITH_MAG:
@@ -534,14 +577,21 @@ function convertSensorData(sensor, data, measuringPayloadId, isSyncingEnabled, s
                 + ", acc_x " + result.acc_x + ", acc_y " + result.acc_y + ", acc_z " + result.acc_z
                 + ", gyr_x " + result.gyr_x + ", gyr_y " + result.gyr_y + ", gyr_z " + result.gyr_z
                 + ", mag_x " + result.mag_x + ", mag_y " + result.mag_y + ", mag_z " + result.mag_z;
-            console.log(msg);
-            socket.emit("send-message", msg);
+            analyzerSocket.sendData(msg);
+            ANALYZER_DEBUG ? console.log(msg) : null;
             return result;
 
         case MEASURING_PAYLOAD_TYPE_CUSTOM_MODE_1:
             var euler = getEuler(data, 4);
             var freeAcceleration = getFreeAcceleration(data, 16);
             var gyr = getAngularVelocity(data, 28);
+            var quaternion = getOrientationQuaternion(data, 4);
+            var status = getSnapshotStatus(data, 32);
+            var clipCountAcc = getClipCountAcc(data, 34);
+            var clipCountGyr = getClipCountGyr(data, 35);
+            var quaternion = getOrientationQuaternion(data, 4);
+            var mag = getCalibratedMag(data, 28);
+
 
             var result =
                 {
@@ -555,9 +605,20 @@ function convertSensorData(sensor, data, measuringPayloadId, isSyncingEnabled, s
                     freeAcc_z: freeAcceleration.z,
                     gyr_x: gyr.x,
                     gyr_y: gyr.y,
-                    gyr_z: gyr.z
+                    gyr_z: gyr.z,
+                    mag_x: mag.x,
+                    mag_y: mag.y,
+                    mag_z: mag.z,
+                    quaternion_w: quaternion.w,
+                    quaternion_x: quaternion.x,
+                    quaternion_y: quaternion.y,
+                    quaternion_z: quaternion.z,
+                    status: status,
+                    clipCountAcc: clipCountAcc,
+                    clipCountGyr: clipCountGyr
                 };
-
+            console.log("freeAcc_X: " + freeAcceleration.x);
+            // console.log("freeAcc_Y" + freeAcceleration.y);
             return result;
 
         case MEASURING_PAYLOAD_TYPE_CUSTOM_MODE_2:
