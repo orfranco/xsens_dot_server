@@ -2,9 +2,42 @@
 This is the Xsens module Repository. This repository was copied from the original company repository, and includes the changes needed for AbeltonXsens Project.
 
 ## Installation Guide:
- 1. follow the installation guide in the end of this page (including the troubleshooting section!).
- 2. open WebStorm or VisualStudio with the project files.
- 3. open Terminal and run npm install
+
+## Run Xsens DOT Server
+1. Clone repository
+   ```sh
+   git clone https://github.com/orfranco/xsens_dot_server.git
+   ```
+1. Enter Xsens DOT Server project `cd ./xsens_dot_server` and install the dependency package `npm install`
+1. Run Xsens DOT Server
+   * Windows and macOS: `node xsensDotServer`
+   * Raspberry Pi: `sudo node xsensDotServer`
+1. Open Xsens DOT server in browser
+   * Run http://localhost:8080/ or http://127.0.0.1:8080/ you are able to use Xsens DOT Server!
+
+## Known issues
+1. [Connection] Unable to connect sensors in Mac with Bluetooth 5.0.
+1. [Connection] Connection with firmware 1.3.0 sensors may fail in Windows. You can:
+   * use firmware 1.0.0
+   * or use a Bluetooth dongle which support 4.0 or above. Refer to [Add Bluetooth adapter](#add-bluetooth-adapter) to configure your Bluetooth dongle.
+
+## Troubleshooting
+#### Add Bluetooth adapter
+If you encounter `Error: No compatible USB Bluetooth 4.0 device found!` when try to run Xsens DOT Sever on Windows, it means you need to add your Bluetooth adapter to the USB device list:
+ 1. Open Device Manager, find the VID and PID of your Bluetooth adapter.<br>
+&nbsp;<img height="300" src="images/image011.gif"/>
+ 2. Open source code: *xsens_dot_server\node_modules\bluetooth-hci-socket\lib\usb.js*
+ 3. Add Bluetooth VID & PID in usb.js (line 66), save and close.<br>
+&nbsp;<img height="80" src="images/image012.gif"/>
+ 4. Run Xsens DOT Server again.
+ 
+ #### Reinstall Bluetooth adapter
+ After replacing the Bluetooth adapter with WinUSB driver, you cannot connect to Bluetooth devices with your PC. Here is the way to reinstall the Bluetooth adapter:
+  1. Go to **Device Manager** -> **Universal Serial Bus devices**
+  2. Find your converted WinUSB driver and uninstall
+  3. In **Device Manager**, go to **Action** (top menu), then **Scan for hardware changes** and let it reinstall
+  4. You should able to find your Bluetooth adapter back in **Bluetooth**.
+
 
 ## Overview
 Xsens DOT Server is a simple web server that can scan, connect and start measurement with Xsens DOT on Windows, macOS and Raspberry Pi. The system is built using Node.js in combination with [Noble](https://github.com/abandonware/noble). 
@@ -108,41 +141,6 @@ Get more information about Xsens DOT in [Develepor Page](https://www.xsens.com/d
    sudo n 8.11.1
    node -v
    ```
-
-## Run Xsens DOT Server
-1. Clone repository
-   ```sh
-   git clone https://github.com/xsens/xsens_dot_server.git
-   ```
-1. Enter Xsens DOT Server project `cd ./xsens_dot_server` and install the dependency package `npm install`
-1. Run Xsens DOT Server
-   * Windows and macOS: `node xsensDotServer`
-   * Raspberry Pi: `sudo node xsensDotServer`
-1. Open Xsens DOT server in browser
-   * Run http://localhost:8080/ or http://127.0.0.1:8080/ you are able to use Xsens DOT Server!
-
-## Known issues
-1. [Connection] Unable to connect sensors in Mac with Bluetooth 5.0.
-1. [Connection] Connection with firmware 1.3.0 sensors may fail in Windows. You can:
-   * use firmware 1.0.0
-   * or use a Bluetooth dongle which support 4.0 or above. Refer to [Add Bluetooth adapter](#add-bluetooth-adapter) to configure your Bluetooth dongle.
-
-## Troubleshooting
-#### Add Bluetooth adapter
-If you encounter `Error: No compatible USB Bluetooth 4.0 device found!` when try to run Xsens DOT Sever on Windows, it means you need to add your Bluetooth adapter to the USB device list:
- 1. Open Device Manager, find the VID and PID of your Bluetooth adapter.<br>
-&nbsp;<img height="300" src="images/image011.gif"/>
- 2. Open source code: *xsens_dot_server\node_modules\bluetooth-hci-socket\lib\usb.js*
- 3. Add Bluetooth VID & PID in usb.js (line 66), save and close.<br>
-&nbsp;<img height="80" src="images/image012.gif"/>
- 4. Run Xsens DOT Server again.
- 
- #### Reinstall Bluetooth adapter
- After replacing the Bluetooth adapter with WinUSB driver, you cannot connect to Bluetooth devices with your PC. Here is the way to reinstall the Bluetooth adapter:
-  1. Go to **Device Manager** -> **Universal Serial Bus devices**
-  2. Find your converted WinUSB driver and uninstall
-  3. In **Device Manager**, go to **Action** (top menu), then **Scan for hardware changes** and let it reinstall
-  4. You should able to find your Bluetooth adapter back in **Bluetooth**.
 
 ## Bug reports and feedback
 All feedback is welcome and helps us to improve!
