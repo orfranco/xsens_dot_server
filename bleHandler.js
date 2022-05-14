@@ -625,6 +625,7 @@ function convertSensorData(sensor, data, measuringPayloadId, isSyncingEnabled, a
                 + "\nquaternion_w:" + result.quaternion_w + "\nquaternion_x:" + result.quaternion_x
                 + "\nquaternion_y:" + result.quaternion_y + "\nquaternion_z:" + result.quaternion_z
             analyzerSocket.sendData(msg);
+            console.clear();
             console.log(msg);
             return result;
 
