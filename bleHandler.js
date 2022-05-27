@@ -90,6 +90,7 @@ class BleHandler {
         this.discoveredSensorCounter = 0;
         //old-library:
         this.central = require('noble-mac');
+        // this.central = require('@abandonware/noble');
         this.setBleEventHandlers(this);
         this.isSyncingEnabled = true;
         this.AnalyzerSocketInit();

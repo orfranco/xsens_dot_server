@@ -8,11 +8,41 @@ This is the Xsens module Repository. This repository was copied from the origina
    ```sh
    git clone https://github.com/orfranco/xsens_dot_server.git
    ```
-1. Enter Xsens DOT Server project `cd ./xsens_dot_server` and install the dependency package `npm install`
-1. Run Xsens DOT Server
+2. Enter Xsens DOT Server project `cd ./xsens_dot_server` and install the dependency package `npm install`
+3. Add bluetooth adaptor id:
+   * Open Device Manager, find the VID and PID of your Bluetooth adapter.<br>
+         &nbsp;<img height="300" src="images/image011.gif"/>
+   * Open source code: *xsens_dot_server\node_modules\bluetooth-hci-socket\lib\usb.js*
+   * Add Bluetooth VID & PID in usb.js (line 66), save and close.<br>
+    &nbsp;<img height="80" src="images/image012.gif"/>
+4. install the following tools on windows:
+   * Install Python 3.8.3 from the [Micfrosoft Store package](https://docs.python.org/3/using/windows.html#the-microsoft-store-package)
+   * Install [Node.js-v12.16.2-x64](https://nodejs.org/download/release/v12.16.2/node-v12.16.2-x64.msi)
+       * Keep clicking **Next** to complete the installation.
+       * Enter `npm -v` in command prompt to check if the installation is successful.<br>
+         &nbsp;<img height="60" src="images/image002.gif"/>
+   * Install [node-gyp](https://github.com/nodejs/node-gyp#installation)
+      ```sh
+      npm install -g node-gyp
+      ```
+   * Install all the required tools and configurations using Microsoft's [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools) from an elevated PowerShell or CMD.exe (run as Administrator)
+      ```sh
+      npm install --global --production windows-build-tools
+      ```
+   * Install [Zadig](https://zadig.akeo.ie/) to setup WinUSB driver:
+       * Find Bluetooth adapter inforamtion in Device Manager <br>
+         &nbsp;<img height="250" src="images/image006.gif"/>
+       * Open Zadig, goto **Options**, enable "**List All Devices**"
+       * Find your Bluetooth adapter, change the driver to **WinUSB**. Then click **Replace Driver** <br>
+         &nbsp;<img height="200" src="images/image007.gif"/>
+
+       * Note: please retry several times if the intallation fails. Or restart the computer and try again.
+
+5. Run Xsens DOT Server again.
+6. Run Xsens DOT Server
    * Windows and macOS: `node xsensDotServer`
    * Raspberry Pi: `sudo node xsensDotServer`
-1. Open Xsens DOT server in browser
+7. Open Xsens DOT server in browser
    * Run http://localhost:8080/ or http://127.0.0.1:8080/ you are able to use Xsens DOT Server!
 
 ## Known issues

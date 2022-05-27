@@ -13,7 +13,6 @@ class AnalyzerSocketClient {
     }
     sendData(msg){
         this.analyzerSocket.emit("send-data", msg);
-
     }
 }
 module.exports = AnalyzerSocketClient;
