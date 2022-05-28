@@ -89,8 +89,8 @@ class BleHandler {
         this.guiInterface = guiInterface;
         this.discoveredSensorCounter = 0;
         //old-library:
-        this.central = require('noble-mac');
-        // this.central = require('@abandonware/noble');
+        // this.central = require('noble-mac');
+        this.central = require('@abandonware/noble');
         this.setBleEventHandlers(this);
         this.isSyncingEnabled = true;
         this.AnalyzerSocketInit();
@@ -618,7 +618,7 @@ function convertSensorData(sensor, data, measuringPayloadId, isSyncingEnabled, a
                     clipCountAcc: clipCountAcc,
                     clipCountGyr: clipCountGyr
                 };
-            msg = "Payload id 20 bleSensorData " + result.timestamp + "," + result.address
+            msg = "Payload id 20 bleSensorData timestamp:" + result.timestamp + "," + result.address
                 + "\neuler_x:" + result.euler_x + "\neuler_y:" + result.euler_y + "\neuler_z:" + result.euler_z
                 + "\nacc_x:" + result.freeAcc_x + "\nacc_y:" + result.freeAcc_y + "\nacc_z:" + result.freeAcc_z
                 + "\ngyr_x:" + result.gyr_x + "\ngyr_y:" + result.gyr_y + "\ngyr_z:" + result.gyr_z
